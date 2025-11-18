@@ -5,7 +5,7 @@ from easyocr import Reader
 
 shadow = False
 resize = False
-gray = False
+gray1 = False
 denoise = False
 brightness = False
 threshold = False
