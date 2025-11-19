@@ -1,11 +1,13 @@
 import cv2
 import numpy as np
 
+img_path = "../exam_doc.jpg"
+
 # 1. Morphology 기반 그림자 제거
 #      각 채널(R, G, B)에 대해
 #      큰 커널로 배경(조명) 추정 후
 #      원본에서 빼서 그림자를 줄이는 방식
-def Morphology(img_path):
+def Morphology():
     img = cv2.imread(img_path)
 
     # 채널 분리 (B, G, R 순서)
@@ -36,13 +38,13 @@ def Morphology(img_path):
     return result
 
 # Morphology 결과 저장
-out = Morphology("../shadow_test1.png")
+out = Morphology()
 cv2.imwrite("Morphology.png", out)
 
 # 2. Background Subtraction
 #      그레이스케일로 만든 뒤 블러로 배경(조명) 추정 후 나누기 연산으로 조명을 평탄화
 #      이후 CLAHE로 대비 강화
-def BackgroundSubtraction(img_path):
+def BackgroundSubtraction():
     img = cv2.imread(img_path)
 
     # BGR 에서 GRAY 로 변환
@@ -68,7 +70,7 @@ def BackgroundSubtraction(img_path):
     enhanced = clahe.apply(norm)
     return enhanced
 
-out = BackgroundSubtraction("../shadow_test1.png")
+out = BackgroundSubtraction()
 cv2.imwrite("BackgroundSubtraction.png", out)
 
 # 3. Adaptive Threshold
@@ -76,7 +78,7 @@ cv2.imwrite("BackgroundSubtraction.png", out)
 #      국소 영역 기준으로 이진화
 
 # 이미지 읽기 (그레이스케일)
-img = cv2.imread("../shadow_test1.png", 0)
+img = cv2.imread(img_path, 0)
 
 # 적응형 이진화
 # maxValue: 임계값을 넘을 때 줄 값 (보통 255)
@@ -102,7 +104,7 @@ cv2.imwrite("AdaptiveThreshold.png", out)
 #      가우시안 블러로 조명 성분 추정 후
 #      원본 밝기를 조명으로 나눠서 평탄화
 
-img = cv2.imread("../shadow_test1.png")
+img = cv2.imread(img_path)
 
 # BGR 에서 GRAY 로 변환
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)

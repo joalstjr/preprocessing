@@ -95,7 +95,7 @@ def mouse_callback(event, x, y, flags, param):
 def main():
     global image, clone, points
 
-    img_path = "shadow_test1.png"   # 처리할 이미지 경로
+    img_path = "../exam_doc.jpg"   # 처리할 이미지 경로
     image = cv2.imread(img_path)
 
     if image is None:
