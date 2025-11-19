@@ -36,7 +36,7 @@ def Morphology(img_path):
     return result
 
 # Morphology 결과 저장
-out = Morphology("shadow_test1.png")
+out = Morphology("../shadow_test1.png")
 cv2.imwrite("Morphology.png", out)
 
 # 2. Background Subtraction
@@ -68,7 +68,7 @@ def BackgroundSubtraction(img_path):
     enhanced = clahe.apply(norm)
     return enhanced
 
-out = BackgroundSubtraction("shadow_test1.png")
+out = BackgroundSubtraction("../shadow_test1.png")
 cv2.imwrite("BackgroundSubtraction.png", out)
 
 # 3. Adaptive Threshold
@@ -76,7 +76,7 @@ cv2.imwrite("BackgroundSubtraction.png", out)
 #      국소 영역 기준으로 이진화
 
 # 이미지 읽기 (그레이스케일)
-img = cv2.imread("shadow_test1.png", 0)
+img = cv2.imread("../shadow_test1.png", 0)
 
 # 적응형 이진화
 # maxValue: 임계값을 넘을 때 줄 값 (보통 255)
@@ -102,7 +102,7 @@ cv2.imwrite("AdaptiveThreshold.png", out)
 #      가우시안 블러로 조명 성분 추정 후
 #      원본 밝기를 조명으로 나눠서 평탄화
 
-img = cv2.imread("shadow_test1.png")
+img = cv2.imread("../shadow_test1.png")
 
 # BGR 에서 GRAY 로 변환
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
