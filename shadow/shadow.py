@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-img_path = "../exam_doc.jpg"
+img_path = "../imgs/ocr_test2.jpg"
 
 # 1. Morphology 기반 그림자 제거
 #      각 채널(R, G, B)에 대해
@@ -39,7 +39,7 @@ def Morphology():
 
 # Morphology 결과 저장
 out = Morphology()
-cv2.imwrite("Morphology.png", out)
+cv2.imwrite("../imgs/Morphology.png", out)
 
 # 2. Background Subtraction
 #      그레이스케일로 만든 뒤 블러로 배경(조명) 추정 후 나누기 연산으로 조명을 평탄화
@@ -71,7 +71,7 @@ def BackgroundSubtraction():
     return enhanced
 
 out = BackgroundSubtraction()
-cv2.imwrite("BackgroundSubtraction.png", out)
+cv2.imwrite("../imgs/BackgroundSubtraction.png", out)
 
 # 3. Adaptive Threshold
 #      그림자나 조명 차이를 무시하고
@@ -98,7 +98,7 @@ out = cv2.adaptiveThreshold(
     16
 )
 
-cv2.imwrite("AdaptiveThreshold.png", out)
+cv2.imwrite("../imgs/AdaptiveThreshold.png", out)
 
 # 4. Gray World 스타일 조명 보정
 #      가우시안 블러로 조명 성분 추정 후
@@ -119,4 +119,4 @@ illum = cv2.GaussianBlur(gray, (ksize, ksize), 0)
 # divide 연산으로 어두운 부분(그림자) 비율을 줄이고 밝기 균일화
 norm = cv2.divide(gray, illum, scale=255)
 
-cv2.imwrite("GrayWorld.png", norm)
+cv2.imwrite("../imgs/GrayWorld.png", norm)

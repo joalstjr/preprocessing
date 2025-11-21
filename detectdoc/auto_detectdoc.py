@@ -140,7 +140,7 @@ def process_document_image(img_path, debug_prefix="doc"):
 
 
 if __name__ == "__main__":
-    img_path = "../exam_doc.jpg"
+    img_path = "../imgs/ocr_test3.jpg"
 
     warped = process_document_image(
         img_path,
