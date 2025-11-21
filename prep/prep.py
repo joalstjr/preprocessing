@@ -1,46 +1,7 @@
 import cv2
 import numpy as np
 
-img_path = "../imgs/ocr_test6.jpg"
-
-# 1. Morphology 기반 그림자 제거
-#      각 채널(R, G, B)에 대해
-#      큰 커널로 배경(조명) 추정 후
-#      원본에서 빼서 그림자를 줄이는 방식
-def Morphology():
-    img = cv2.imread(img_path)
-
-    # 채널 분리 (B, G, R 순서)
-    rgb_planes = cv2.split(img)
-
-    result_planes = []
-    for plane in rgb_planes:
-        # 팽창 연산으로 배경(조명) 부분을 크게 확장해서 추정
-        # kernel: 구조 요소(커널) 크기와 모양
-        dilated = cv2.dilate(
-            plane,
-            np.ones((16, 16), np.uint8)  # 20x20 커널, 타입은 uint8
-        )
-
-        # 배경 블러 처리로 부드럽게 만들기
-        # ksize: 커널 크기(홀수), 값이 클수록 더 많이 블러됨
-        bg = cv2.medianBlur(dilated, 37)
-
-        # 그림자 제거
-        # 두 이미지의 절대 차이를 계산(255 - absdiff)해서 밝기를 반전하는 효과
-        diff = 255 - cv2.absdiff(plane, bg)
-
-        # 채널별 결과 저장
-        result_planes.append(diff)
-
-    # 채널 합치기
-    result = cv2.merge(result_planes)
-    return result
-
-# Morphology 결과 저장
-out = Morphology()
-cv2.imwrite("../imgs/Morphology.png", out)
-
+img_path = "../pdfs/img0.png"
 # 2. Background Subtraction
 #      그레이스케일로 만든 뒤 블러로 배경(조명) 추정 후 나누기 연산으로 조명을 평탄화
 #      이후 CLAHE로 대비 강화
@@ -94,8 +55,8 @@ out = cv2.adaptiveThreshold(
     255,
     cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
     cv2.THRESH_BINARY,
-    51,
-    16
+    13,
+    40
 )
 
 cv2.imwrite("../imgs/AdaptiveThreshold.png", out)

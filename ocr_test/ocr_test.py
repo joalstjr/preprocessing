@@ -3,7 +3,7 @@ import easyocr
 def main():
     reader = easyocr.Reader(['ko', 'en'], gpu=False)
 
-    image_path = './imgs/AdaptiveThreshold.png'
+    image_path = '../imgs/AdaptiveThreshold.png'
 
     results = reader.readtext(
         image_path,
