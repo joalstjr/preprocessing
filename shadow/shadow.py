@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-img_path = "../imgs/ocr_test2.jpg"
+img_path = "../imgs/ocr_test6.jpg"
 
 # 1. Morphology 기반 그림자 제거
 #      각 채널(R, G, B)에 대해
