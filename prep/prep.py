@@ -81,3 +81,5 @@ illum = cv2.GaussianBlur(gray, (ksize, ksize), 0)
 norm = cv2.divide(gray, illum, scale=255)
 
 cv2.imwrite("../imgs/GrayWorld.png", norm)
+
+

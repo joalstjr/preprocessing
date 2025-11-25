@@ -90,33 +90,54 @@ def removeshadow(path):
     return result
 
 
+def main():
+    # 원하는 작업만 선택해서 True로 변환
+    img2pdf = False
+    pdf2img = False
+    shadow = True
+    gray = True
+    adaptive = True
 
-# 원하는 작업만 선택해서 True로 변환
-img2pdf = False
-pdf2img = False
-shadow = True
-gray = True
+    # 경로(임시로 지정)
+    img_path = "./imgs/ocr_test7.jpg"
 
-# 경로
-img_path = "./imgs/ocr_test7.jpg"
+    # 확장자 추출(jpg, png, jpeg 등 이미지의 확장자를 추출)
+    ext = img_path.split(".")[-1]
 
-# 확장자 추출
-ext = img_path.split(".")[-1]
+    pdf_path = "./pdfs/conv_test.pdf"
+    save_imgs_path = "./pdfs/img"
 
-pdf_path = "./pdfs/conv_test.pdf"
-save_imgs_path = "./pdfs/img"
+    imgs_path = "./pdfs"
+    save_pdf_path = "./pdfs/merged_pdf.pdf"
 
-imgs_path = "./pdfs"
-save_pdf_path = "./pdfs/merged_pdf.pdf"
+    if img2pdf:
+        images2pdf(imgs_path, save_pdf_path)
 
-if img2pdf:
-    images2pdf(imgs_path, save_pdf_path)
-if pdf2img:
-    images2pdf(pdf_path, save_pdf_path)
-if shadow:
-    out = removeshadow(img_path)
-    cv2.imwrite(f"removed_shadow.{ext}", out)
-if gray:
-    img = cv2.imread(img_path)
-    gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    cv2.imwrite(f"output_gray.{ext}", gray_img)
+    if pdf2img:
+        images2pdf(pdf_path, save_pdf_path)
+
+    if shadow:
+        out = removeshadow(img_path)
+        cv2.imwrite(f"output_shadow.{ext}", out)
+
+    if gray:
+        img = cv2.imread(img_path)
+        gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        cv2.imwrite(f"output_gray.{ext}", gray_img)
+
+    if adaptive:
+        img = cv2.imread(img_path, 0)
+
+        # 적응형 이진화
+        # maxValue: 임계값을 넘을 때 줄 값 (보통 255)
+        # adaptiveMethod:
+        #   cv2.ADAPTIVE_THRESH_MEAN_C    주변 평균 사용
+        #   cv2.ADAPTIVE_THRESH_GAUSSIAN_C 주변 가중 평균(가우시안) 사용
+        # thresholdType: cv2.THRESH_BINARY             (픽셀값 > 임계값 이면 maxValue, 아니면 0)
+        # blockSize: 임계값 계산할 지역 크기(홀수)
+        # C: 계산된 평균에서 얼마나 빼줄지 (값이 클수록 더 어두운 픽셀만 흰색으로)
+        out = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 13, 40)
+        cv2.imwrite(f"output_adaptive.{ext}", out)
+
+if __name__ == "__main__":
+    main()
