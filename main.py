@@ -1,4 +1,4 @@
-import cv2, os
+import cv2, os, easyocr
 import numpy as np
 from PIL import Image
 from pdf2image import convert_from_path
@@ -34,14 +34,12 @@ def images2pdf(imgs, output_pdf):
 
 
 #################### shadow removal ####################
-# Morphology 기반 그림자 제거 함수
+# Morphology 기반 그림자 제거
 # - 컬러 이미지를 LAB 색공간으로 변환
 # - 밝기 채널(L)에서만 배경(조명)을 추정해서 그림자 성분을 줄임
 # - 색상 정보(A, B 채널)는 최대한 그대로 유지해서 색감 보존
-
-def removeshadow(path):
+def removeshadow(img):
     # 1) 이미지 읽기 (BGR 형식)
-    img = cv2.imread(path)
 
     # 2) BGR → LAB 변환
     #    L  채널: 밝기 정보
@@ -89,20 +87,69 @@ def removeshadow(path):
 
     return result
 
+def readocr(path):
+    reader = easyocr.Reader(['ko', 'en'], gpu=False)
+
+    results = reader.readtext(path, detail=1, paragraph=False)
+
+    # bbox 기준 줄 정렬
+    lines = []
+    for bbox, text, conf in results:
+        y = bbox[0][1]
+        lines.append((y, text))
+
+    lines.sort(key=lambda x: x[0])
+
+    full_text = "\n".join([x[1] for x in lines])
+
+    print("===== 인식 결과 =====")
+    print(full_text)
+
+def BackgroundSubtraction(img):
+    # BGR 에서 GRAY 로 변환
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    # 배경 추정을 위한 미디언 블러
+    # 커널 크기가 클수록 전체적인 조명만 남고 디테일이 사라짐
+    bg = cv2.medianBlur(gray, 61)
+
+    # 조명 보정: gray / bg
+    # scale: 결과에 곱해줄 스케일
+    norm = cv2.divide(gray, bg, scale=255)
+
+    # 대비(콘트라스트) 강화
+    # CLAHE (Contrast Limited Adaptive Histogram Equalization)
+    # clipLimit: 대비 제한 정도(클수록 대비 더 세게)
+    # tileGridSize: 영역을 얼마나 쪼개서 적용할지 (가로, 세로 분할 수)
+    clahe = cv2.createCLAHE(
+        clipLimit=2.0,
+        tileGridSize=(8, 8)
+    )
+    # clahe 적용(norm은 그레이스케일)
+    enhanced = clahe.apply(norm)
+    return enhanced
 
 def main():
     # 원하는 작업만 선택해서 True로 변환
     img2pdf = False
     pdf2img = False
     shadow = True
-    gray = True
+    gray = False
+    background = True
     adaptive = True
+    ocr = True
 
-    # 경로(임시로 지정)
-    img_path = "./imgs/ocr_test7.jpg"
+    # 원본 경로
+    ord_path = "./imgs/ocr_test3.jpg"
 
     # 확장자 추출(jpg, png, jpeg 등 이미지의 확장자를 추출)
-    ext = img_path.split(".")[-1]
+    ext = ord_path.split(".")[-1]
+
+    # 이미지 카피(원본유지)
+    img = cv2.imread("./imgs/ocr_test3.jpg")
+    cv2.imwrite(f"ocr.{ext}", img)
+
+    img_path = f"ocr.{ext}"
 
     pdf_path = "./pdfs/conv_test.pdf"
     save_imgs_path = "./pdfs/img"
@@ -114,15 +161,23 @@ def main():
         images2pdf(imgs_path, save_pdf_path)
 
     if pdf2img:
-        images2pdf(pdf_path, save_pdf_path)
+        images2pdf(pdf_path, save_imgs_path)
 
     if shadow:
-        out = removeshadow(img_path)
+        out = removeshadow(img)
+        cv2.imwrite(f"ocr.{ext}", out)
         cv2.imwrite(f"output_shadow.{ext}", out)
+
+    if background:
+        img = cv2.imread(img_path)
+        out = BackgroundSubtraction(img)
+        cv2.imwrite(f"ocr.{ext}", out)
+        cv2.imwrite(f"out_bg.{ext}", out)
 
     if gray:
         img = cv2.imread(img_path)
         gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        cv2.imwrite(f"ocr.{ext}", gray_img)
         cv2.imwrite(f"output_gray.{ext}", gray_img)
 
     if adaptive:
@@ -136,8 +191,12 @@ def main():
         # thresholdType: cv2.THRESH_BINARY             (픽셀값 > 임계값 이면 maxValue, 아니면 0)
         # blockSize: 임계값 계산할 지역 크기(홀수)
         # C: 계산된 평균에서 얼마나 빼줄지 (값이 클수록 더 어두운 픽셀만 흰색으로)
-        out = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 13, 40)
+        out = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 255, 40)
+        cv2.imwrite(f"ocr.{ext}", out)
         cv2.imwrite(f"output_adaptive.{ext}", out)
+
+    if ocr:
+        readocr("ocr."+ext)
 
 if __name__ == "__main__":
     main()
